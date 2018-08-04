@@ -1,0 +1,6 @@
+rootProject.name = 'runtime-kdoc'
+
+include 'runtime-kdoc-annotations'
+include 'runtime-kdoc-common'
+include 'runtime-kdoc-processor'
+include 'runtime-kdoc-reader'
