@@ -50,9 +50,7 @@ object RuntimeJavadoc {
      * @return the Javadoc of the given class, or an empty optional if no documentation was found
      */
     @JvmOverloads
-    fun getJavadoc(
-        qualifiedClassName: String, loader: Class<*> = RuntimeJavadoc::class.java
-    ): Optional<ClassDoc> {
+    fun getJavadoc(qualifiedClassName: String, loader: Class<*> = RuntimeJavadoc::class.java): Optional<ClassDoc> {
         val resourceName = resourceName(qualifiedClassName)
         val inputStream = loader.getResourceAsStream("/$resourceName") ?: return Optional.empty()
         return parseJavadocResource(qualifiedClassName, inputStream)
