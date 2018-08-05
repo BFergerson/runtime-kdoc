@@ -24,9 +24,9 @@ data class ParamTag(val paramName: String, val comment: Comment?)
  * Represents a <tt>@see</tt> tag on a class or method.
  */
 sealed class SeeAlsoTag {
-    data class SeeAlsoTextTag(val text: String): SeeAlsoTag()
-    data class SeeAlsoUrlTag(val url: String, val label: String): SeeAlsoTag()
-    data class SeeAlsoLinkTag(val link: Link): SeeAlsoTag()
+    data class SeeAlsoTextTag(val text: String) : SeeAlsoTag()
+    data class SeeAlsoUrlTag(val url: String, val label: String) : SeeAlsoTag()
+    data class SeeAlsoLinkTag(val link: Link) : SeeAlsoTag()
 }
 
 /**
