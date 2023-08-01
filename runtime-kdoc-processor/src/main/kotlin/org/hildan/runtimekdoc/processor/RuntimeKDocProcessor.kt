@@ -1,5 +1,6 @@
 package org.hildan.runtimekdoc.processor
 
+import io.vertx.core.json.Json
 import org.hildan.runtimekdoc.DOC_RESOURCE_SUFFIX
 import org.hildan.runtimekdoc.annotations.RetainDoc
 import org.hildan.runtimekdoc.model.ClassDoc
@@ -76,7 +77,9 @@ class RuntimeKDocProcessor : AbstractProcessor() {
         classDoc?.also { outputJsonDoc(classElement, toJson(it)) }
     }
 
-    private fun toJson(doc: ClassDoc): String = TODO("serialize to JSON")
+    private fun toJson(doc: ClassDoc): String {
+        return Json.encode(doc)
+    }
 
     private fun outputJsonDoc(classElement: TypeElement, classJsonDoc: String) {
         val resource = createJavadocResourceFile(classElement)

@@ -30,6 +30,7 @@ subprojects {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+        implementation "io.vertx:vertx-core:4.4.4"
     }
 
     compileKotlin {
