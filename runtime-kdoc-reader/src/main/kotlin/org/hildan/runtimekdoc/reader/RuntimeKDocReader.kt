@@ -1,5 +1,6 @@
 package org.hildan.runtimekdoc.reader
 
+import io.vertx.core.json.Json
 import org.hildan.runtimekdoc.DOC_RESOURCE_SUFFIX
 import org.hildan.runtimekdoc.model.ClassDoc
 import org.hildan.runtimekdoc.model.FieldDoc
@@ -62,7 +63,7 @@ object RuntimeJavadoc {
     @Throws(IOException::class)
     private fun parseJavadocResource(qualifiedClassName: String, input: InputStream): Optional<ClassDoc> {
         InputStreamReader(input, UTF_8).use { reader ->
-            val classDoc = TODO("implement JSON deserialization")
+            val classDoc = Json.decodeValue(reader.readText(), ClassDoc::class.java)
             return Optional.of(classDoc)
         }
     }
