@@ -108,7 +108,7 @@ class RuntimeKDocProcessor : AbstractProcessor() {
         }
 
         val reader = BufferedReader(InputStreamReader(process.inputStream))
-        val dateText = reader.readLine() ?: throw RuntimeException("$command returned no output")
+        val dateText = reader.readLine() ?: return Instant.now()
         val sanitizedDateText = dateText.trim('"')
         val formatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH)
         return Instant.from(formatter.parse(sanitizedDateText))
