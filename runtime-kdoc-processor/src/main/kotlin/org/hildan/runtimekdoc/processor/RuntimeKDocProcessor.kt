@@ -1,10 +1,16 @@
 package org.hildan.runtimekdoc.processor
 
-import io.vertx.core.json.Json
+import io.vertx.core.json.JsonObject
 import org.hildan.runtimekdoc.DOC_RESOURCE_SUFFIX
 import org.hildan.runtimekdoc.annotations.RetainDoc
 import org.hildan.runtimekdoc.model.ClassDoc
 import org.hildan.runtimekdoc.processor.parser.DocParser
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
@@ -74,11 +80,42 @@ class RuntimeKDocProcessor : AbstractProcessor() {
         }
         val classElement = element as TypeElement
         val classDoc = docParser.parseClassDoc(classElement)
-        classDoc?.also { outputJsonDoc(classElement, toJson(it)) }
+        classDoc?.also {
+            //if inner class, get the last commit of outer class
+            val lastCommitDate = if (classElement.nestingKind.isNested) {
+                val outerClassElement = classElement.enclosingElement as TypeElement
+                getGitLastCommitDate(outerClassElement.qualifiedName.toString())
+            } else {
+                getGitLastCommitDate(classElement.qualifiedName.toString())
+            }
+            outputJsonDoc(classElement, toJson(it, lastCommitDate))
+        }
     }
 
-    private fun toJson(doc: ClassDoc): String {
-        return Json.encode(doc)
+    private fun getGitLastCommitDate(classElement: String, projectDirPath: String? = null): Instant {
+        val filePath = "src/main/kotlin/${classElement.replace('.', '/')}.kt"
+        val projectDir =
+            projectDirPath?.let { File(it) } ?: File(System.getProperty("user.dir") + "/agent") //todo: no-hardcode
+
+        val command = "git log -1 --format=\"%ad\" -- $filePath"
+        val process = ProcessBuilder(*command.split(" ").toTypedArray())
+            .directory(projectDir)
+            .redirectErrorStream(true)
+            .start()
+        val exitCode = process.waitFor()
+        if (exitCode != 0) {
+            throw RuntimeException("Git command failed with exit code $exitCode")
+        }
+
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+        val dateText = reader.readLine() ?: throw RuntimeException("$command returned no output")
+        val sanitizedDateText = dateText.trim('"')
+        val formatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH)
+        return Instant.from(formatter.parse(sanitizedDateText))
+    }
+
+    private fun toJson(doc: ClassDoc, lastCommitDate: Instant): String {
+        return JsonObject.mapFrom(doc).put("lastCommitDate", lastCommitDate.toEpochMilli()).toString()
     }
 
     private fun outputJsonDoc(classElement: TypeElement, classJsonDoc: String) {
