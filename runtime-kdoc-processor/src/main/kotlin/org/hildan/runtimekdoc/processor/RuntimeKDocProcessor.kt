@@ -67,7 +67,7 @@ class RuntimeKDocProcessor : AbstractProcessor() {
                 generateJavadocForClass(element, alreadyProcessed)
             } catch (ex: Exception) {
                 processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "Javadoc retention failed; $ex", element)
-                throw RuntimeException("Javadoc retention failed for $element", ex)
+                throw ex
             }
         }
 
